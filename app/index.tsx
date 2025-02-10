@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
+
 export default function OnboardingScreen() {
   const router = useRouter();
 
@@ -27,6 +28,7 @@ export default function OnboardingScreen() {
         >
           <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
+        
       </View>
     </LinearGradient>
   );

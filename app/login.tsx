@@ -9,17 +9,31 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import apiClient from '@/config/axios';
+import Toast from 'react-native-toast-message';
 
 export default function LoginScreen() {
   const [authKey, setAuthKey] = useState('');
+  const [invalidData, setInvalidData] = useState(false);
   const router = useRouter();
 
-  const handleLogin = () => {
-    // TODO: Implement actual authentication logic
-    if (authKey.trim()) {
+  const  handleLogin = async() => {   
+    const users = (await apiClient.get('warehousemans')).data;
+    const userExist = users.filter((user: string)=>user.secretKey == authKey);
+    if (userExist.length > 0) {
       router.replace('/(tabs)');
     }
+    else{
+        Toast.show({
+            type: 'error',
+            position: 'top',
+            text1: 'Invalid input',
+            text2: 'Please try again'
+          });
+    }
   };
+
+
 
   return (
     <LinearGradient
@@ -40,6 +54,7 @@ export default function LoginScreen() {
           onChangeText={setAuthKey}
           secureTextEntry
           placeholderTextColor="#FFD1A9"
+          autoCapitalize="none"
         />
         <TouchableOpacity 
           style={styles.button}
