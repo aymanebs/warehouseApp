@@ -3,12 +3,25 @@ import apiClient from "@/config/axios"
 
 export const  findProduct = async (barcode: string)=>{
 
-    const products = (await apiClient.get('/products')).data;
-    const productExist = products.filter((prod)=> prod.barcode == barcode);
-
-    if(productExist.length > 0){
-        return true;
+    try{
+        const products = (await apiClient.get('/products')).data;
+        const product = products.find((prod) => prod.barcode === barcode)
+        return product || null;
+    }
+    
+    catch(error){
+        console.error("Failed to find product", error);
+        return null;
     }
 
-    return false;
+   
+}
+
+export const AddProduct = async(data)=>{
+        try{
+            await apiClient.post('/products',data);
+        }
+        catch(error){
+            console.error('Failed to insert product',error);
+        }
 }

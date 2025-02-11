@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,7 +6,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { findProduct } from '@/services/ProductServices';
 
 
-export default function ProductDetails({ product }) {
+export default function ProductDetails() {
+  const [product,setProduct] = useState(null);
   const totalStock = product?.stocks.reduce((sum, stock) => sum + stock.quantity, 0);
   const {barcodeData} = useLocalSearchParams();
 
@@ -16,6 +17,7 @@ export default function ProductDetails({ product }) {
 
     const fetchProduct = async ()=>{
       const product = await findProduct(barcodeData);
+      setProduct(product);
       console.log("Product:", product);
     } 
     
@@ -24,14 +26,14 @@ export default function ProductDetails({ product }) {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header Image */}
+     
       <Image 
         source={{ uri: product?.image }} 
         style={styles.image}
         resizeMode="cover"
       />
 
-      {/* Product Info Card */}
+    
       <View style={styles.infoCard}>
         <Text style={styles.name}>{product?.name}</Text>
         <View style={styles.basicInfo}>
@@ -39,7 +41,7 @@ export default function ProductDetails({ product }) {
           <Text style={styles.barcode}>#{product?.barcode}</Text>
         </View>
 
-        {/* Price Section */}
+       
         <View style={styles.priceContainer}>
           <View>
             <Text style={styles.priceLabel}>Price</Text>
@@ -64,7 +66,7 @@ export default function ProductDetails({ product }) {
           <Text style={styles.totalStockText}>Total Stock: {totalStock} units</Text>
         </LinearGradient>
 
-        {/* Stock Locations */}
+      
         <Text style={styles.sectionTitle}>Stock Locations</Text>
         {product?.stocks.map((stock) => (
           <View key={stock.id} style={styles.stockCard}>
@@ -81,7 +83,6 @@ export default function ProductDetails({ product }) {
           </View>
         ))}
 
-        {/* Last Edited */}
         <View style={styles.editedInfo}>
           <MaterialCommunityIcons name="clock-outline" size={16} color="#687076" />
           <Text style={styles.editedText}>

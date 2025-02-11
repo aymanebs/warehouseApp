@@ -9,7 +9,7 @@ const ScanResultModal = ({
   onDismiss, 
   barcodeData, 
   productExists,
-  barcodeImage // This would be a capture of the scanned barcode area
+  barcodeImage 
 }) => {
   const router = useRouter();
 
@@ -17,7 +17,7 @@ const ScanResultModal = ({
     if (productExists) {
         router.push({ pathname: "/ProductDetails", params: { barcodeData } });
     } else {
-      router.push(`/ProductDetails`);
+      router.push({ pathname: "/ProductCreationScreen", params: { barcodeData } });
     }
   };
 

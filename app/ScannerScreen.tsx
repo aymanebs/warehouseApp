@@ -28,10 +28,10 @@ export default function ScannerScreen() {
     setData(data);
     const product = await findProduct(data);
     console.log('productExists',product);
-    setIsProductExists(product);
+    if(product){
+      setIsProductExists(true);
+    } 
     setIsModalOpen(true);
-    // alert(`Barcode with type ${type} and data ${data} has been scanned!`);
-   
   };
 
   if (hasPermission === null) {
