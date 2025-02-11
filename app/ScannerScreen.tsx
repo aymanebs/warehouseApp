@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { Camera, CameraType, CameraView } from 'expo-camera';
+import { Camera, CameraView } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { findProduct } from '@/services/ProductServices';
+import ScanResultModal from '@/components/ScanResultModal';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -10,6 +12,9 @@ export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [data, setData] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productExists, setIsProductExists] = useState(false);
+  const [barcodeImage, setBarcodeImage] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -18,10 +23,15 @@ export default function ScannerScreen() {
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
     setData(data);
-    alert(`Barcode with type ${type} and data ${data} has been scanned!`);
+    const product = await findProduct(data);
+    console.log('productExists',product);
+    setIsProductExists(product);
+    setIsModalOpen(true);
+    // alert(`Barcode with type ${type} and data ${data} has been scanned!`);
+   
   };
 
   if (hasPermission === null) {
@@ -43,7 +53,9 @@ export default function ScannerScreen() {
     );
   }
 
+
   return (
+    <>
     <View style={styles.container}>
       <CameraView
         style={StyleSheet.absoluteFillObject}
@@ -84,6 +96,20 @@ export default function ScannerScreen() {
         </TouchableOpacity>
       )}
     </View>
+
+    
+    <ScanResultModal
+
+        isVisible={isModalOpen}
+        barcodeData = {data}
+        productExists={productExists}
+        barcodeImage={barcodeImage}
+        onDismiss={()=>setIsModalOpen(false)}
+    />
+
+    </>
+
+   
   );
 }
 
