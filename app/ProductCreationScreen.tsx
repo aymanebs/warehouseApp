@@ -6,8 +6,6 @@ import {
   ScrollView, 
   TextInput, 
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   Alert
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -17,88 +15,142 @@ import { AddProduct } from '@/services/ProductServices';
 
 export default function ProductCreationScreen() {
   const router = useRouter();
-  const {barcodeData} = useLocalSearchParams(); 
+  const { barcodeData } = useLocalSearchParams();
   const [form, setForm] = useState({
     name: '',
     type: '',
-    price: '',
-    solde: '',
-    supplier: '',
-    quantity: '',
-    location: '',
-    city: '',
     barcode: barcodeData,
+    price: '',
+    supplier: '',
+    image: 'https://in-media.apjonlinecdn.com/catalog/product/cache/b3b166914d87ce343d4dc5ec5117b502/8/a/8aa01aa.png', 
+    stocks: [
+      {
+        name: '',
+        quantity: '',
+        localisation: {
+          city: '',
+          latitude: '',
+          longitude: ''
+        }
+      }
+    ]
   });
 
   const handleSubmit = async () => {
-   
-    if (!form.name || !form.type || !form.price) {
-             Toast.show({
-                  type: 'error',
-                  position: 'top',
-                  text1: 'Please fill in all required fields',
-                  text2: 'Please try again'
-                });
+    if (!form.name || !form.type || !form.price || !form.stocks[0].name || !form.stocks[0].quantity) {
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Please fill in all required fields',
+        text2: 'Please try again'
+      });
       return;
     }
 
     try {
-      AddProduct(form);
+
+      const formattedData = {
+        ...form,
+        price: Number(form.price),
+        stocks: [
+          {
+            ...form.stocks[0],
+            quantity: Number(form.stocks[0].quantity),
+            localisation: {
+              ...form.stocks[0].localisation,
+              latitude: form.stocks[0].localisation.latitude ? Number(form.stocks[0].localisation.latitude) : null,
+              longitude: form.stocks[0].localisation.longitude ? Number(form.stocks[0].localisation.longitude) : null
+            }
+          }
+        ],
+        editedBy: [
+          {
+            warehousemanId: 1444, 
+            at: new Date().toISOString().split('T')[0]
+          }
+        ]
+      };
+
+      await AddProduct(formattedData);
       Alert.alert(
         'Success',
         'Product added successfully',
         [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (error) {
-        Toast.show({
-            type: 'error',
-            position: 'top',
-            text1: 'Failed to add product',
-
-          });
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Failed to add product',
+      });
     }
   };
 
+  const updateStock = (field, value) => {
+    setForm(prev => ({
+      ...prev,
+      stocks: [
+        {
+          ...prev.stocks[0],
+          [field]: value
+        }
+      ]
+    }));
+  };
+
+  const updateLocalisation = (field, value) => {
+    setForm(prev => ({
+      ...prev,
+      stocks: [
+        {
+          ...prev.stocks[0],
+          localisation: {
+            ...prev.stocks[0].localisation,
+            [field]: value
+          }
+        }
+      ]
+    }));
+  };
+
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView style={styles.scrollView}>
-       
-        <View style={styles.header}>
-          <Text style={styles.title}>Add New Product</Text>
-          <Text style={styles.barcode}>Barcode: {barcodeData}</Text>
-        </View>
+    <View style={styles.safeArea}>
+      <View style={styles.container}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>Add New Product</Text>
+            <Text style={styles.barcode}>Barcode: {barcodeData}</Text>
+          </View>
 
-        {/* Form */}
-        <View style={styles.form}>
-        
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Basic Information</Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Product Name *</Text>
-              <TextInput
-                style={styles.input}
-                value={form.name}
-                onChangeText={(text) => setForm({...form, name: text})}
-                placeholder="Enter product name"
-              />
-            </View>
+          <View style={styles.form}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Basic Information</Text>
+              
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Product Name *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.name}
+                  onChangeText={(text) => setForm({...form, name: text})}
+                  placeholder="Enter product name"
+                />
+              </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Type *</Text>
-              <TextInput
-                style={styles.input}
-                value={form.type}
-                onChangeText={(text) => setForm({...form, type: text})}
-                placeholder="Enter product type"
-              />
-            </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Type *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.type}
+                  onChangeText={(text) => setForm({...form, type: text})}
+                  placeholder="Enter product type"
+                />
+              </View>
 
-            <View style={styles.row}>
-              <View style={[styles.inputGroup, styles.halfWidth]}>
+              <View style={styles.inputGroup}>
                 <Text style={styles.label}>Price *</Text>
                 <TextInput
                   style={styles.input}
@@ -109,95 +161,114 @@ export default function ProductCreationScreen() {
                 />
               </View>
 
-              <View style={[styles.inputGroup, styles.halfWidth]}>
-                <Text style={styles.label}>Sale Price</Text>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Supplier</Text>
                 <TextInput
                   style={styles.input}
-                  value={form.solde}
-                  onChangeText={(text) => setForm({...form, solde: text})}
-                  placeholder="0.00"
-                  keyboardType="numeric"
+                  value={form.supplier}
+                  onChangeText={(text) => setForm({...form, supplier: text})}
+                  placeholder="Enter supplier name"
                 />
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Supplier</Text>
-              <TextInput
-                style={styles.input}
-                value={form.supplier}
-                onChangeText={(text) => setForm({...form, supplier: text})}
-                placeholder="Enter supplier name"
-              />
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Stock Information</Text>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Location Name *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.stocks[0].name}
+                  onChangeText={(text) => updateStock('name', text)}
+                  placeholder="Enter storage location"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Quantity *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.stocks[0].quantity}
+                  onChangeText={(text) => updateStock('quantity', text)}
+                  placeholder="Enter quantity"
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>City</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.stocks[0].localisation.city}
+                  onChangeText={(text) => updateLocalisation('city', text)}
+                  placeholder="Enter city"
+                />
+              </View>
+
+              <View style={styles.row}>
+                <View style={[styles.inputGroup, styles.halfWidth]}>
+                  <Text style={styles.label}>Latitude</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={form.stocks[0].localisation.latitude}
+                    onChangeText={(text) => updateLocalisation('latitude', text)}
+                    placeholder="Enter latitude"
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={[styles.inputGroup, styles.halfWidth]}>
+                  <Text style={styles.label}>Longitude</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={form.stocks[0].localisation.longitude}
+                    onChangeText={(text) => updateLocalisation('longitude', text)}
+                    placeholder="Enter longitude"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
             </View>
           </View>
+        </ScrollView>
 
-         
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Stock Information</Text>
+        <View style={styles.footer}>
+          <TouchableOpacity 
+            style={styles.cancelButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Initial Quantity *</Text>
-              <TextInput
-                style={styles.input}
-                value={form.quantity}
-                onChangeText={(text) => setForm({...form, quantity: text})}
-                placeholder="Enter quantity"
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Location Name</Text>
-              <TextInput
-                style={styles.input}
-                value={form.location}
-                onChangeText={(text) => setForm({...form, location: text})}
-                placeholder="Enter storage location"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>City</Text>
-              <TextInput
-                style={styles.input}
-                value={form.city}
-                onChangeText={(text) => setForm({...form, city: text})}
-                placeholder="Enter city"
-              />
-            </View>
-          </View>
+          <TouchableOpacity 
+            style={styles.submitButton}
+            onPress={handleSubmit}
+          >
+            <MaterialCommunityIcons name="check" size={24} color="white" />
+            <Text style={styles.submitButtonText}>Save Product</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.cancelButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.submitButton}
-          onPress={handleSubmit}
-        >
-          <MaterialCommunityIcons name="check" size={24} color="white" />
-          <Text style={styles.submitButtonText}>Save Product</Text>
-        </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
   scrollView: {
     flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingBottom: 100,
   },
   header: {
     padding: 20,
@@ -259,6 +330,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
   },
   cancelButton: {
     padding: 15,

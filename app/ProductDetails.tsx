@@ -47,10 +47,10 @@ export default function ProductDetails() {
             <Text style={styles.priceLabel}>Price</Text>
             <Text style={styles.price}>${product?.price}</Text>
           </View>
-          <View>
+          {/* <View>
             <Text style={styles.priceLabel}>Sale Price</Text>
             <Text style={styles.salePrice}>${product?.solde}</Text>
-          </View>
+          </View> */}
           <View>
             <Text style={styles.priceLabel}>Supplier</Text>
             <Text style={styles.supplier}>{product?.supplier}</Text>
@@ -77,7 +77,7 @@ export default function ProductDetails() {
             <View style={styles.locationInfo}>
               <MaterialCommunityIcons name="map-marker" size={16} color="#687076" />
               <Text style={styles.locationText}>
-                {stock.localisation.city} ({stock.localisation.latitude.toFixed(4)}, {stock.localisation.longitude.toFixed(4)})
+                {stock.localisation.city}
               </Text>
             </View>
           </View>
@@ -149,11 +149,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#11181C',
   },
-  salePrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FF6B6B',
-  },
+  // salePrice: {
+  //   fontSize: 18,
+  //   fontWeight: 'bold',
+  //   color: '#FF6B6B',
+  // },
   supplier: {
     fontSize: 18,
     fontWeight: 'bold',
