@@ -1,39 +1,77 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { findProduct } from '@/services/ProductServices';
 
+const QuantityAdjuster = ({ stock, onUpdate }) => {
+  return (
+    <View style={styles.quantityContainer}>
+      <TouchableOpacity 
+        style={styles.quantityButton}
+        onPress={() => onUpdate(stock.id, stock.quantity - 1)}
+      >
+        <MaterialCommunityIcons name="minus" size={20} color="#FF9F43" />
+      </TouchableOpacity>
+      
+      <Text style={styles.quantityText}>{stock.quantity}</Text>
+      
+      <TouchableOpacity 
+        style={styles.quantityButton}
+        onPress={() => onUpdate(stock.id, stock.quantity + 1)}
+      >
+        <MaterialCommunityIcons name="plus" size={20} color="#FF9F43" />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 export default function ProductDetails() {
-  const [product,setProduct] = useState(null);
+  const [product, setProduct] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { barcodeData } = useLocalSearchParams();
+  
   const totalStock = product?.stocks.reduce((sum, stock) => sum + stock.quantity, 0);
-  const {barcodeData} = useLocalSearchParams();
 
-  console.log('barcodeData',barcodeData); 
-
-  useEffect(  () =>{
-
-    const fetchProduct = async ()=>{
+  useEffect(() => {
+    const fetchProduct = async () => {
       const product = await findProduct(barcodeData);
       setProduct(product);
-      console.log("Product:", product);
-    } 
+    };
     
     fetchProduct();
-  },[]);
+  }, []);
+
+  const handleQuantityUpdate = async (stockId, newQuantity) => {
+    if (newQuantity < 0) {
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+  
+      setProduct(prevProduct => ({
+        ...prevProduct,
+        stocks: prevProduct.stocks.map(stock => 
+          stock.id === stockId ? { ...stock, quantity: newQuantity } : stock
+        )
+      }));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update quantity');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
-     
       <Image 
         source={{ uri: product?.image }} 
         style={styles.image}
         resizeMode="cover"
       />
-
-    
+      
       <View style={styles.infoCard}>
         <Text style={styles.name}>{product?.name}</Text>
         <View style={styles.basicInfo}>
@@ -41,23 +79,17 @@ export default function ProductDetails() {
           <Text style={styles.barcode}>#{product?.barcode}</Text>
         </View>
 
-       
         <View style={styles.priceContainer}>
           <View>
             <Text style={styles.priceLabel}>Price</Text>
             <Text style={styles.price}>${product?.price}</Text>
           </View>
-          {/* <View>
-            <Text style={styles.priceLabel}>Sale Price</Text>
-            <Text style={styles.salePrice}>${product?.solde}</Text>
-          </View> */}
           <View>
             <Text style={styles.priceLabel}>Supplier</Text>
             <Text style={styles.supplier}>{product?.supplier}</Text>
           </View>
         </View>
 
-        {/* Total Stock */}
         <LinearGradient
           colors={['#FF9F43', '#FF6B6B']}
           style={styles.totalStockCard}
@@ -66,19 +98,23 @@ export default function ProductDetails() {
           <Text style={styles.totalStockText}>Total Stock: {totalStock} units</Text>
         </LinearGradient>
 
-      
         <Text style={styles.sectionTitle}>Stock Locations</Text>
         {product?.stocks.map((stock) => (
           <View key={stock.id} style={styles.stockCard}>
             <View style={styles.stockHeader}>
               <Text style={styles.stockName}>{stock.name}</Text>
-              <Text style={styles.stockQuantity}>{stock.quantity} units</Text>
             </View>
-            <View style={styles.locationInfo}>
-              <MaterialCommunityIcons name="map-marker" size={16} color="#687076" />
-              <Text style={styles.locationText}>
-                {stock.localisation.city}
-              </Text>
+            
+            <View style={styles.stockDetails}>
+              <View style={styles.locationInfo}>
+                <MaterialCommunityIcons name="map-marker" size={16} color="#687076" />
+                <Text style={styles.locationText}>{stock.localisation.city}</Text>
+              </View>
+              
+              <QuantityAdjuster 
+                stock={stock}
+                onUpdate={handleQuantityUpdate}
+              />
             </View>
           </View>
         ))}
@@ -149,11 +185,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#11181C',
   },
-  // salePrice: {
-  //   fontSize: 18,
-  //   fontWeight: 'bold',
-  //   color: '#FF6B6B',
-  // },
   supplier: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -198,6 +229,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FF9F43',
     fontWeight: 'bold',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  quantityButton: {
+    padding: 8,
+    borderRadius: 6,
+    backgroundColor: '#FFF5EC',
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 16,
+    color: '#11181C',
+  },
+  stockDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
   },
   locationInfo: {
     flexDirection: 'row',

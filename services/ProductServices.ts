@@ -13,8 +13,7 @@ export const  findProduct = async (barcode: string)=>{
         console.error("Failed to find product", error);
         return null;
     }
-
-   
+  
 }
 
 export const AddProduct = async(data)=>{
@@ -25,3 +24,11 @@ export const AddProduct = async(data)=>{
             console.error('Failed to insert product',error);
         }
 }
+
+
+// export const UpdateQuantity = async(barcode, newQuantity) =>{
+    
+//     const product = await findProduct(barcode);
+
+//     await apiClient.patch('/products',)
+// }
