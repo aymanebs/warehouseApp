@@ -97,9 +97,8 @@ export default function ScannerScreen() {
       )}
     </View>
 
-    
+    {/* Bottom modal  */}
     <ScanResultModal
-
         isVisible={isModalOpen}
         barcodeData = {data}
         productExists={productExists}

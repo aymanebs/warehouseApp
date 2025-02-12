@@ -12,6 +12,8 @@ const ScanResultModal = ({
   barcodeImage 
 }) => {
   const router = useRouter();
+  // console.log("modal openn");
+  // console.log("?????????",barcodeData,'productExists',productExists);
 
   const handleProductAction = () => {
     if (productExists) {
