@@ -8,7 +8,8 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,24 +24,40 @@ export default function HomeScreen() {
   const [manualCode, setManualCode] = useState('');
   const [isBottomModalOpen, setisBottomModalOpen] = useState(false);
   const [productExists, setIsProductExists] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleManualSubmit = async() => {
-    if (manualCode.trim().length < 13) {
-      Alert.alert('Invalid Code', 'Please enter a valid barcode');
-      return;
+    try{
+      if (manualCode.trim().length < 13) {
+        Alert.alert('Invalid Code', 'Please enter a valid barcode');
+        return;
+      }
+      setIsLoading(true);
+
+      const product = await findProduct(manualCode);
+      
+      setIsProductExists(!!product);
+      setIsManualEntryVisible(false);
+      setisBottomModalOpen(true);
     }
-    console.log("***************manualCode",manualCode);
-    const product = await findProduct(manualCode);
-    console.log('******product',product);
-    if(product){
-      console.log("product is alive");
-      setIsProductExists(true);
+    catch(error){
+      Alert.alert(
+        'Error',
+        'An error occurred while checking the product. Please try again.'
+      );
+      console.error('Error in handleManualSubmit:', error);
+      setIsProductExists(false);
+      setisBottomModalOpen(false);
     }
-    console.log("****productExits",productExists);
-    setIsManualEntryVisible(false);
+    finally{
+      setIsLoading(false);
+    }
+  };
+
+  const handleModalDismiss = () => {
+    setisBottomModalOpen(false);
+    setIsProductExists(false);
     setManualCode('');
-    setisBottomModalOpen(true);
- 
   };
 
   
@@ -108,7 +125,11 @@ export default function HomeScreen() {
           visible={isManualEntryVisible}
           animationType="slide"
           transparent={true}
-          onRequestClose={() => setIsManualEntryVisible(false)}
+          onRequestClose={() =>{
+            setIsManualEntryVisible(false);
+            setManualCode('');
+          }
+          }
         >
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -126,6 +147,7 @@ export default function HomeScreen() {
                 placeholder="Enter barcode number"
                 keyboardType="numeric"
                 autoFocus
+                maxLength={13}
               />
 
               <View style={styles.manualEntryButtons}>
@@ -142,12 +164,16 @@ export default function HomeScreen() {
                 <TouchableOpacity 
                   style={[
                     styles.submitButton,
-                    !manualCode.trim() && styles.submitButtonDisabled
+                    (!manualCode.trim() || isLoading) && styles.submitButtonDisabled
                   ]}
                   onPress={handleManualSubmit}
-                  disabled={!manualCode.trim()}
+                  disabled={!manualCode.trim() || isLoading}
                 >
-                  <Text style={styles.submitButtonText}>Submit</Text>
+                  {isLoading ? (
+                    <ActivityIndicator color="white" size="small" />
+                  ) : (
+                    <Text style={styles.submitButtonText}>Submit</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -161,7 +187,7 @@ export default function HomeScreen() {
         barcodeData = {manualCode}
         productExists={productExists}
         barcodeImage={null}
-        onDismiss={()=>setisBottomModalOpen(false)}
+        onDismiss={handleModalDismiss}
     />
 
     </LinearGradient>

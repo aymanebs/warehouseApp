@@ -9,11 +9,9 @@ const ScanResultModal = ({
   onDismiss, 
   barcodeData, 
   productExists,
-  barcodeImage 
+ 
 }) => {
   const router = useRouter();
-  // console.log("modal openn");
-  // console.log("?????????",barcodeData,'productExists',productExists);
 
   const handleProductAction = () => {
     if (productExists) {
@@ -37,16 +35,6 @@ const ScanResultModal = ({
       {/* Modal Content */}
       <View style={styles.modalContainer}>
         <View style={styles.handle} />
-
-        {/* Barcode Image Section */}
-        <View style={styles.barcodeContainer}>
-          <Image 
-            source={{ uri: barcodeImage }} 
-            style={styles.barcodeImage}
-            resizeMode="contain"
-          />
-          <Text style={styles.barcodeText}>{barcodeData}</Text>
-        </View>
 
         {/* Action Button */}
         <TouchableOpacity 
@@ -120,12 +108,6 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
-  },
-  barcodeImage: {
-    width: '100%',
-    height: 100,
-    marginBottom: 10,
-    backgroundColor: '#f0f0f0',
   },
   barcodeText: {
     fontSize: 16,

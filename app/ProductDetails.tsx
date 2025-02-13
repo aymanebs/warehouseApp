@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert } fr
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
-import { findProduct } from '@/services/ProductServices';
+import { findProduct, UpdateQuantity } from '@/services/ProductServices';
 
 const QuantityAdjuster = ({ stock, onUpdate }) => {
   return (
@@ -50,6 +50,7 @@ export default function ProductDetails() {
 
     setIsUpdating(true);
     try {
+      UpdateQuantity(product.id,stockId,newQuantity);
   
       setProduct(prevProduct => ({
         ...prevProduct,

@@ -244,14 +244,6 @@ const styles = StyleSheet.create({
       fontSize: 16,
       color: '#11181C',
     },
-    addButton: {
-      backgroundColor: '#FF9F43',
-      width: 40,
-      height: 40,
-      borderRadius: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
     filterSection: {
       backgroundColor: 'white',
       paddingVertical: 12,
