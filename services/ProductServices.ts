@@ -1,4 +1,5 @@
 import apiClient from "@/config/axios"
+import axios from "axios";
 
 
 export const  findProduct = async (barcode: string)=>{
@@ -32,3 +33,14 @@ export const AddProduct = async(data)=>{
 
 //     await apiClient.patch('/products',)
 // }
+
+
+export const getAllProducts = async ()=>{
+    try{
+        const products = (await apiClient.get('/products')).data;
+        return products;
+    }
+    catch(error){
+        console.error('Failed to fetch products',error);
+    }
+}
