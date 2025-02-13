@@ -27,12 +27,17 @@ export const AddProduct = async(data)=>{
 }
 
 
-// export const UpdateQuantity = async(barcode, newQuantity) =>{
-    
-//     const product = await findProduct(barcode);
-
-//     await apiClient.patch('/products',)
-// }
+export const UpdateQuantity = async(productId: string,stockId: string, newQuantity: number) =>{
+    try{
+        const product = (await apiClient.get(`products/${productId}`)).data;
+        const newStocks = product.stocks.map((stock)=> stock.id == stockId ? {...stock, quantity: newQuantity} : stock);
+        const response =  await apiClient.patch(`/products/${productId}`,{stocks: newStocks});
+    }
+    catch(error){
+        console.error('Failed to update product quantity',error);
+    }
+  
+}
 
 
 export const getAllProducts = async ()=>{
