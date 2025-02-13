@@ -14,7 +14,7 @@ export default function ScannerScreen() {
   const [data, setData] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productExists, setIsProductExists] = useState(false);
-  const [barcodeImage, setBarcodeImage] = useState(null);
+  
 
   useEffect(() => {
     (async () => {
@@ -102,7 +102,6 @@ export default function ScannerScreen() {
         isVisible={isModalOpen}
         barcodeData = {data}
         productExists={productExists}
-        barcodeImage={barcodeImage}
         onDismiss={()=>setIsModalOpen(false)}
     />
 
