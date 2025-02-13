@@ -22,6 +22,7 @@
     "axios": "^1.7.9",
     "expo": "~52.0.31",
     "expo-blur": "~14.0.3",
+    "expo-camera": "~16.0.16",
     "expo-constants": "~17.0.5",
     "expo-font": "~13.0.3",
     "expo-haptics": "~14.0.1",
@@ -44,8 +45,8 @@
     "react-native-toast-message": "^2.2.1",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "tailwindcss": "3",
-    "expo-camera": "~16.0.16"
+    "recharts": "^2.15.1",
+    "tailwindcss": "3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
