@@ -2,36 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { findProduct } from '@/services/ProductServices';
-import ScanResultModal from '@/components/ScanResultModal';
+
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-export default function ScannerScreen() {
+export default function ScannerScreen({ onScanSuccess, onClose }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [data, setData] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [productExists, setIsProductExists] = useState(false);
-  
 
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
+
+    return () => {
+      setScanned(false);
+    };
   }, []);
 
   const handleBarCodeScanned = async ({ type, data }) => {
+    if (scanned) return;
     setScanned(true);
-    setData(data);
-    const product = await findProduct(data);
-    console.log('productExists',product);
-    if(product){
-      setIsProductExists(true);
-    } 
-    setIsModalOpen(true);
+    onScanSuccess(data);
   };
 
   if (hasPermission === null) {
@@ -53,9 +47,7 @@ export default function ScannerScreen() {
     );
   }
 
-
   return (
-    <>
     <View style={styles.container}>
       <CameraView
         style={StyleSheet.absoluteFillObject}
@@ -78,14 +70,12 @@ export default function ScannerScreen() {
         <View style={styles.overlayRow} />
       </View>
 
-      {/* Scan instructions */}
       <View style={styles.instructionsContainer}>
         <Text style={styles.instructions}>
           Position barcode within the frame
         </Text>
       </View>
 
-      {/* Tap to scan again */}
       {scanned && (
         <TouchableOpacity 
           style={styles.scanAgainButton} 
@@ -96,18 +86,6 @@ export default function ScannerScreen() {
         </TouchableOpacity>
       )}
     </View>
-
-    {/* Bottom modal  */}
-    <ScanResultModal
-        isVisible={isModalOpen}
-        barcodeData = {data}
-        productExists={productExists}
-        onDismiss={()=>setIsModalOpen(false)}
-    />
-
-    </>
-
-   
   );
 }
 
