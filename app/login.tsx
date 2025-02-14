@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -11,26 +11,70 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import apiClient from '@/config/axios';
 import Toast from 'react-native-toast-message';
+import * as SecureStore from 'expo-secure-store';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
   const [authKey, setAuthKey] = useState('');
   const [invalidData, setInvalidData] = useState(false);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const  handleLogin = async() => {   
-    const users = (await apiClient.get('warehousemans')).data;
-    const userExist = users.filter((user: string)=>user.secretKey == authKey);
-    if (userExist.length > 0) {
-      router.replace('/(tabs)');
+  useEffect(() => {
+    checkExistingSession();
+  }, []);
+
+  const checkExistingSession = async () => {
+    try {
+      const userData = await SecureStore.getItemAsync('userData');
+      if (userData) {
+        router.replace('/(tabs)');
+      }
+    } catch (error) {
+      console.error('Error checking session:', error);
     }
-    else{
+  };
+
+  const handleLogin = async () => {   
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get('warehousemans');
+      const users = response.data;
+      const user = users.find((user) => user.secretKey === authKey);
+
+      if (user) {
+        await SecureStore.setItemAsync('userData', JSON.stringify({
+          id: user.id,
+          name: user.name,
+          warehouseId: user.warehouseId,
+          city: user.city
+        }));
+
+        router.replace('/(tabs)');
+      } else {
         Toast.show({
-            type: 'error',
-            position: 'top',
-            text1: 'Invalid input',
-            text2: 'Please try again'
-          });
+          type: 'error',
+          position: 'top',
+          text1: 'Invalid Authentication Key',
+          text2: 'Please check your key and try again'
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Connection Error',
+        text2: 'Please check your internet connection'
+      });
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
 
@@ -47,15 +91,28 @@ export default function LoginScreen() {
           resizeMode="contain"
         />
         <Text style={styles.title}>Stock Manager</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Authentication Key"
-          value={authKey}
-          onChangeText={setAuthKey}
-          secureTextEntry
-          placeholderTextColor="#FFD1A9"
-          autoCapitalize="none"
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Authentication Key"
+            value={authKey}
+            onChangeText={setAuthKey}
+            secureTextEntry={!showPassword}
+            placeholderTextColor="#FFD1A9"
+            autoCapitalize="none"
+          />
+          <TouchableOpacity 
+            style={styles.eyeIcon}
+            onPress={togglePasswordVisibility}
+          >
+            <MaterialCommunityIcons
+              name={showPassword ? "eye-off" : "eye"} 
+              size={24} 
+              color="#FFD1A9"
+            />
+          </TouchableOpacity>
+        </View>
+        
         <TouchableOpacity 
           style={styles.button}
           onPress={handleLogin}
@@ -89,6 +146,11 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 30,
   },
+  inputContainer: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: 20,
+  },
   input: {
     width: '100%',
     backgroundColor: 'rgba(255,255,255,0.2)',
@@ -112,4 +174,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  eyeIcon: {
+    position: 'absolute',
+    right: 12,
+    top: '17%',
+  }
 });

@@ -47,6 +47,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol name="chart.pie.fill" size={28} color={color} />,
         }}
       />
+        <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol name="person.fill" size={28} color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
