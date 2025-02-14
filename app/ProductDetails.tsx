@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
 import { findProduct, UpdateQuantity } from '@/services/ProductServices';
+import generateProductReport from '@/services/GenerateProductReport';
 
 const QuantityAdjuster = ({ stock, onUpdate }) => {
   return (
@@ -71,14 +72,22 @@ export default function ProductDetails() {
         source={{ uri: product?.image }} 
         style={styles.image}
         resizeMode="cover"
-      />
-      
+      />   
       <View style={styles.infoCard}>
+
+      <TouchableOpacity 
+        style={styles.printButton}
+        onPress={() => product && generateProductReport(product)}
+      >
+        <MaterialCommunityIcons name="file-pdf-box" size={24} color="#FF9F43" />
+        <Text style={styles.printButtonText}>Export Report</Text>
+      </TouchableOpacity>
+
         <Text style={styles.name}>{product?.name}</Text>
         <View style={styles.basicInfo}>
           <Text style={styles.type}>{product?.type}</Text>
           <Text style={styles.barcode}>#{product?.barcode}</Text>
-        </View>
+      </View>
 
         <View style={styles.priceContainer}>
           <View>
@@ -275,5 +284,18 @@ const styles = StyleSheet.create({
   editedText: {
     color: '#687076',
     marginLeft: 5,
+  },
+  printButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF5EC',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  printButtonText: {
+    color: '#FF9F43',
+    marginLeft: 8,
+    fontWeight: '600',
   },
 });
