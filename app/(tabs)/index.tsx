@@ -25,9 +25,10 @@ export default function HomeScreen() {
   const [isBottomModalOpen, setisBottomModalOpen] = useState(false);
   const [productExists, setIsProductExists] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [scannedData, setScannedData] = useState('');
 
   const handleManualSubmit = async() => {
-    try{
+    try {
       if (manualCode.trim().length < 13) {
         Alert.alert('Invalid Code', 'Please enter a valid barcode');
         return;
@@ -39,8 +40,7 @@ export default function HomeScreen() {
       setIsProductExists(!!product);
       setIsManualEntryVisible(false);
       setisBottomModalOpen(true);
-    }
-    catch(error){
+    } catch(error) {
       Alert.alert(
         'Error',
         'An error occurred while checking the product. Please try again.'
@@ -48,8 +48,7 @@ export default function HomeScreen() {
       console.error('Error in handleManualSubmit:', error);
       setIsProductExists(false);
       setisBottomModalOpen(false);
-    }
-    finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -58,9 +57,24 @@ export default function HomeScreen() {
     setisBottomModalOpen(false);
     setIsProductExists(false);
     setManualCode('');
+    setScannedData('');
   };
 
-  
+  const handleScanResult = async (data) => {
+    try {
+      const product = await findProduct(data);
+      setScannedData(data);
+      setIsProductExists(!!product);
+      setisBottomModalOpen(true);
+      setIsScannerVisible(false);
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        'An error occurred while checking the product. Please try again.'
+      );
+      console.error('Error in handleScanResult:', error);
+    }
+  };
 
   return (
     <LinearGradient
@@ -107,10 +121,15 @@ export default function HomeScreen() {
         <Modal
           visible={isScannerVisible}
           animationType="slide"
+          transparent={true}
+          hardwareAccelerated={true}
           onRequestClose={() => setIsScannerVisible(false)}
         >
           <View style={styles.modalContainer}>
-            <ScannerScreen />
+            <ScannerScreen 
+              onScanSuccess={handleScanResult}
+              onClose={() => setIsScannerVisible(false)}
+            />
             <TouchableOpacity 
               style={styles.closeButton}
               onPress={() => setIsScannerVisible(false)}
@@ -125,11 +144,11 @@ export default function HomeScreen() {
           visible={isManualEntryVisible}
           animationType="slide"
           transparent={true}
-          onRequestClose={() =>{
+          hardwareAccelerated={true}
+          onRequestClose={() => {
             setIsManualEntryVisible(false);
             setManualCode('');
-          }
-          }
+          }}
         >
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -181,15 +200,14 @@ export default function HomeScreen() {
         </Modal>
       </View>
 
-    {/* Bottom modal  */}
-    <ScanResultModal
+      {/* Bottom modal */}
+      <ScanResultModal
         isVisible={isBottomModalOpen}
-        barcodeData = {manualCode}
+        barcodeData={scannedData || manualCode}
         productExists={productExists}
         barcodeImage={null}
         onDismiss={handleModalDismiss}
-    />
-
+      />
     </LinearGradient>
   );
 }
