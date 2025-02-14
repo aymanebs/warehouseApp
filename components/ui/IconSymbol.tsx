@@ -14,6 +14,7 @@ const MAPPING = {
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
   'shippingbox.fill': 'inventory',
+  'chart.pie.fill': 'pie-chart'
   
 } as Partial<
   Record<
