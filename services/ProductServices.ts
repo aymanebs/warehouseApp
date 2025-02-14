@@ -1,5 +1,5 @@
 import apiClient from "@/config/axios"
-import axios from "axios";
+
 
 
 export const  findProduct = async (barcode: string)=>{
