@@ -26,7 +26,7 @@ export default function Stats() {
     fetchProducts();
   }, []);
 
-  // Calculate stats
+  //  Stats
   const totalProducts = products.length;
   const totalStock = products.reduce((total, product) => {
     return total + (product.stocks ? product.stocks.reduce((sum, stock) => sum + stock.quantity, 0) : 0);
@@ -44,18 +44,26 @@ export default function Stats() {
     return cities.size;
   })();
 
-  // Calculate distribution data
-  const typeDistribution = products.reduce((acc, product) => {
-    const type = product.type || 'Unspecified';
-    acc[type] = (acc[type] || 0) + 1;
+  // stock state distribution
+  const stockDistribution = products.reduce((acc, product) => {
+    const totalProductStock = product.stocks?.reduce((sum, stock) => sum + stock.quantity, 0) || 0;
+    
+    if (totalProductStock === 0) {
+      acc['Out of Stock'] = (acc['Out of Stock'] || 0) + 1;
+    } else if (totalProductStock < 10) {
+      acc['Critical Stock'] = (acc['Critical Stock'] || 0) + 1;
+    } else {
+      acc['Healthy Stock'] = (acc['Healthy Stock'] || 0) + 1;
+    }
     return acc;
   }, {});
 
-  // Calculate stock by city
+  // stock by city
   const cityStocks = products.reduce((acc, product) => {
     product.stocks?.forEach(stock => {
       if (stock.localisation?.city) {
-        acc[stock.localisation.city] = (acc[stock.localisation.city] || 0) + stock.quantity;
+        const trimedCity = stock.localisation.city.trim();
+        acc[trimedCity] = (acc[trimedCity] || 0) + stock.quantity;
       }
     });
     return acc;
@@ -86,7 +94,7 @@ export default function Stats() {
   ];
 
   const DistributionChart = () => {
-    const entries = Object.entries(typeDistribution);
+    const entries = Object.entries(stockDistribution);
     const total = entries.reduce((sum, [_, value]) => sum + value, 0);
 
     return (
@@ -172,7 +180,7 @@ export default function Stats() {
       case 'distribution':
         return (
           <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Product Type Distribution</Text>
+            <Text style={styles.chartTitle}>Stock State Distribution</Text>
             <DistributionChart />
           </View>
         );

@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
       marginRight: 8,
     },
     activeFilterChip: {
-      backgroundColor: '#FF9F43',
+      backgroundColor: '#ff512f',
     },
     filterText: {
       color: '#687076',
