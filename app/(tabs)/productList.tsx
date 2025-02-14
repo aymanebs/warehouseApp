@@ -31,10 +31,6 @@ const ProductList = () => {
     fetchProducts();
   },[])
 
-  
-
-  console.log('products', products);
-
   const filters = [
     { id: 'all', label: 'All' },
     { id: 'low-stock', label: 'Low Stock' },
