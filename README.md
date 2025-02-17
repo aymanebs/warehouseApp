@@ -1,50 +1,107 @@
-# Welcome to your Expo app 👋
+# Product Management App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Overview
+This application helps manage products, track inventory across multiple locations, and generate statistics. It also supports user authentication and secure data storage.
 
-## Get started
+## Features
+- **Product Management**: Add, update, and delete products.
+- **Stock Tracking**: Monitor stock levels at different warehouse locations.
+- **Barcode Scanning**: Scan products using barcode technology.
+- **User Authentication**: Secure login with password visibility toggle.
+- **Secure Storage**: Store user data securely using SecureStore.
+- **Statistics Dashboard**: View product stock distribution and total stock value.
+- **PDF Report Generation**: Export product reports as PDFs using Expo Print.
+- **Navigation & UI Enhancements**: Improved navigation with icons and active filters.
 
-1. Install dependencies
+## Project Structer
+└─ .
+   ├─ .env
+   ├─ .expo
+   │  ├─ devices.json
+   │  ├─ README.md
+   │  ├─ types
+   │  │  └─ router.d.ts
+   │  └─ web
+   │     └─ cache
+   │        └─ production
+   │           └─ images
+   ├─ app
+   │  ├─ (tabs)
+   │  └─ __tests__
+   ├─ app.json
+   ├─ assets
+   │  ├─ fonts
+   │  └─ images
+   │    
+   ├─ components
+   │  └─ __tests__
+   │     ├─ ThemedText-test.tsx
+   │     └─ __snapshots__
+   ├─ config
+   ├─ constants
+   ├─ db.json
+   ├─ expo-env.d.ts
+   ├─ global.css
+   ├─ helpers
+   ├─ hooks
+   ├─ package-lock.json
+   ├─ package.json
+   ├─ postcss.config.js
+   ├─ README.md
+   ├─ scripts
+   ├─ services
+   ├─ tailwind.config.js
+   └─ tsconfig.json
 
-   ```bash
+## Installation
+
+### Prerequisites
+- **Node.js** (latest LTS version recommended)
+- **Expo CLI** (for React Native development)
+- **Android Studio/Xcode** (for testing on emulators)
+
+### Steps
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/your-repo/product-management-app.git
+   cd product-management-app
+   ```
+2. Install dependencies:
+   ```sh
    npm install
    ```
-
-2. Start the app
-
-   ```bash
-    npx expo start
+3. Start the application:
+   ```sh
+   expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Configuration
+### API Endpoint Configuration
+If your API endpoint changes frequently, consider using a **local DNS setup** or storing the base URL in an environment variable.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+**Example:** Modify `config.js`
+```js
+export const API_BASE_URL = "http://your-local-api:5000";
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Secure User Data Storage
+The app uses `expo-secure-store` to securely store user credentials.
 
-## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
+## Unit Testing
+Unit tests are implemented for core functionalities like onboarding and product services.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Run tests with:
+```sh
+npm test
+```
 
-## Join the community
+## Contributing
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature-name`)
+3. Commit changes following commit guidelines
+4. Push changes and open a Pull Request
 
-Join our community of developers creating universal apps.
+## License
+This project is licensed under the MIT License.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
